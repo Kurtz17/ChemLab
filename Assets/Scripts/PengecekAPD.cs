@@ -10,6 +10,9 @@ public class PengecekAPD : MonoBehaviour
     [Header("Masukkan Tembok Pemblokir Pintu")]
     public GameObject tembokPenahan;
 
+    [Header("Masukkan Tembok Teleportasi")]
+    public GameObject tembokTeleportasi;
+
     void Update()
     {
         // Mengecek apakah ketiga barang sudah hilang/mati (artinya sudah diklik/dipakai)
@@ -19,6 +22,10 @@ public class PengecekAPD : MonoBehaviour
             if (tembokPenahan != null)
             {
                 tembokPenahan.SetActive(false);
+            }
+            if (tembokTeleportasi != null)
+            {
+                tembokTeleportasi.SetActive(true);
             }
         }
     }

@@ -614,10 +614,11 @@ MonoBehaviour:
   selesaiButton: {fileID: 310615729}
   locomotionSystem: {fileID: 981275133}
   instructions:
-  - Langkah 1
-  - Langkah 2
-  - Langkah 3
-  - Selesai
+  - 'Selamat Datang Di ChemLab
+
+    Tempat Anda Berlatih Reaksi Kimia'
+  - 'Silahkan Menuju Kearah Loker untuk Mengambil Alat Pelindung Diri '
+  - Lalu, Menuju Kearah area hijau untuk teleport ke dalam ruangan Lab
 --- !u!1001 &124628373
 PrefabInstance:
   m_ObjectHideFlags: 0
