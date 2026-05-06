@@ -1,9 +1,19 @@
 fileFormatVersion: 2
-guid: 887c994e4f5463548ada470d4f6cbabc
+guid: 93a47e4046c18704e9a1aad657516017
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: gagang_hitam
+    second: {fileID: 2100000, guid: 263258eedfbe23b47a50f9e5911c78d0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: safety_goggles
+    second: {fileID: 2100000, guid: 122ec0af0e18de94b8e7e6c47601deed, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
