@@ -4,29 +4,42 @@ public class CustomPouring : MonoBehaviour
 {
     [Header("Referensi Sistem")]
     public ParticleSystem aliranTuang; 
-    public Renderer rendererH2SO4;   // Masukkan object Cairan_H2SO4
-    public Renderer rendererBeaker;   // Masukkan object Cairan_Aquades
+    public Renderer rendererH2SO4;   
+    public Renderer rendererBeaker;   
 
-    [Header("Pengaturan")]
+    [Header("Kalibrasi Volume Asli (Mililiter)")]
+    public float volumeAwalGelasUkur = 50f;  // Isi Gelas Ukur (100% shader = 50ml)
+    public float volumeAwalBeaker = 200f;    // Isi awal Beaker
+    public float batasMaxBeaker = 250f;      // Kapasitas target mentok di Beaker
+
+    [Header("Kalibrasi Visual 3D (Fill Amount Shader)")]
+    [Tooltip("Angka shader saat Beaker di garis 200ml")]
+    public float fillBeaker200ml = 0.7f;
+    [Tooltip("Angka shader saat Beaker di garis 250ml (Penuh)")]
+    public float fillBeaker250ml = 1.0f;
+    [Tooltip("Angka shader saat Gelas Ukur Penuh (50ml)")]
+    public float fillGelasUkurPenuh = 1.0f;
+
+    [Header("Pengaturan Tuang")]
     public float sudutTuang = 80f;
-    [Tooltip("Kecepatan habisnya air (0.0 sampai 1.0 per detik)")]
-    public float kecepatanHabis = 0.5f; 
+    public float kecepatanHabis = 0.2f; 
 
-    // Level air internal (0.0 = kosong, 1.0 = penuh)
-    private float fillH2SO4 = 1f;   // Gelas ukur mulai dari penuh
-    private float fillBeaker = 0.7f; // Beaker mulai dari 40% (garis 200ml)
+    private float fillH2SO4;
+    private float fillBeaker;
 
     private Material matH2SO4;
     private Material matBeaker;
     private bool sedangMenuang = false;
 
-    // Evaluasi
-    private float totalVolumeDituang = 0f;
-    private float totalVolumeTerbuang = 0f;
+    // Penghitung jumlah partikel fisik untuk rasio
+    private int partikelMasuk = 0;
+    private int partikelTumpah = 0;
 
     void Start()
     {
-        // Ambil material asli agar bisa dimanipulasi
+        fillH2SO4 = fillGelasUkurPenuh;
+        fillBeaker = fillBeaker200ml;
+
         if (rendererH2SO4 != null)
         {
             matH2SO4 = rendererH2SO4.material;
@@ -76,55 +89,86 @@ public class CustomPouring : MonoBehaviour
         {
             sedangMenuang = false;
             aliranTuang.Stop();
+            TampilkanLogEvaluasi(); 
         }
     }
 
     private void KurangiCairanInternal()
     {
-        // Kurangi air gelas ukur
+        // Kurangi visual Gelas Ukur
         fillH2SO4 -= kecepatanHabis * Time.deltaTime;
-        fillH2SO4 = Mathf.Clamp01(fillH2SO4);
+        fillH2SO4 = Mathf.Clamp(fillH2SO4, 0f, fillGelasUkurPenuh);
         matH2SO4.SetFloat("_FillAmount", fillH2SO4);
+
+        UpdateVisualBeaker();
 
         if (fillH2SO4 <= 0)
         {
             rendererH2SO4.gameObject.SetActive(false);
             HentikanTuang();
-            Debug.Log($"EVALUASI -> Masuk Beaker: {totalVolumeDituang} | Tumpah ke Meja: {totalVolumeTerbuang}");
         }
     }
 
     public void ProsesTumpahan(GameObject hitObject)
     {
-        if (hitObject.name.Contains("Beaker_Glass") || hitObject.name.Contains("Cairan_Aquades"))
+        string namaBenda = hitObject.name.ToLower();
+
+        if (namaBenda.Contains("cylinder") || namaBenda.Contains("sulfat") || namaBenda.Contains("alirantuang"))
         {
-            TambahCairanBeaker();
+            return; 
         }
-        else if (hitObject.name.Contains("Meja_Praktikum1") || hitObject.name.Contains("Lantai") || hitObject.name.Contains("Meja_Wastafel1"))
+
+        if (namaBenda.Contains("beaker") || namaBenda.Contains("aquades") || namaBenda.Contains("vortex"))
         {
-            totalVolumeTerbuang += 0.1f;
-            Debug.LogWarning("PENALTI! Cairan Kimia Tumpah ke: " + hitObject.name);
+            partikelMasuk++;
+        }
+        else
+        {
+            partikelTumpah++;
         }
     }
 
-    private void TambahCairanBeaker()
+    private void UpdateVisualBeaker()
     {
-        // 1. KITA UBAH: Naikkan target fill ke 1.0f (Penuh 100%) agar tidak langsung mentok/return
-        float targetFillBeaker = 1.0f;
+        int totalPartikel = partikelMasuk + partikelTumpah;
+        if (totalPartikel == 0 || matBeaker == null) return;
 
-        if (matBeaker == null || fillBeaker >= targetFillBeaker) return;
+        // 1. Hitung berapa ML cairan yang sudah keluar dari Gelas Ukur (Proporsional dari 50ml)
+        float persenKeluar = (fillGelasUkurPenuh - fillH2SO4) / fillGelasUkurPenuh; 
+        float volumeKeluar = persenKeluar * volumeAwalGelasUkur;
 
-        // 2. KITA UBAH: Tambah volume secara fixed per-tabrakan partikel agar lebih responsif
-        totalVolumeDituang += 0.05f;
+        // 2. Tentukan berapa ML yang sukses masuk Beaker
+        float rasioMasuk = (float)partikelMasuk / totalPartikel;
+        float volumeMasukBeaker = volumeKeluar * rasioMasuk;
 
-        // 3. KITA UBAH: Naikkan level air beaker secara konstan (bukan pakai Time.deltaTime) 
-        // karena OnParticleCollision dihitung per-tetes partikel yang masuk
-        fillBeaker += 0.005f; 
-        fillBeaker = Mathf.Clamp(fillBeaker, 0f, targetFillBeaker);
+        // 3. Total ML di dalam Beaker saat ini (Mulai dari 200ml + yang baru masuk)
+        float volumeBeakerSaatIni = volumeAwalBeaker + volumeMasukBeaker;
+
+        // 4. MAPPING KE SHADER: Ubah penambahan 50ml menjadi kenaikan shader dari 0.7 ke 1.0
+        float progressTambahan = (volumeBeakerSaatIni - volumeAwalBeaker) / (batasMaxBeaker - volumeAwalBeaker);
+        fillBeaker = Mathf.Lerp(fillBeaker200ml, fillBeaker250ml, progressTambahan);
         
+        // Kunci maksimal agar tidak luber melewati 1.0
+        fillBeaker = Mathf.Clamp(fillBeaker, fillBeaker200ml, fillBeaker250ml);
         matBeaker.SetFloat("_FillAmount", fillBeaker);
+    }
 
-        // Pasang CCTV di Console buat mastiin angkanya beneran naik pas dituang
-        Debug.Log($"🧪 SUKSES! Air Beaker naik. Level saat ini: {fillBeaker:F3}");
+    private void TampilkanLogEvaluasi()
+    {
+        int totalPartikel = partikelMasuk + partikelTumpah;
+        if (totalPartikel == 0) return;
+
+        float persenKeluar = (fillGelasUkurPenuh - fillH2SO4) / fillGelasUkurPenuh; 
+        float volumeKeluar = persenKeluar * volumeAwalGelasUkur;
+        
+        float rasioMasuk = (float)partikelMasuk / totalPartikel;
+        float rasioTumpah = (float)partikelTumpah / totalPartikel;
+
+        float volumeKeBeaker = volumeKeluar * rasioMasuk;
+        float volumeTumpahKeMeja = volumeKeluar * rasioTumpah;
+
+        float totalDiBeaker = volumeAwalBeaker + volumeKeBeaker;
+
+        Debug.Log($"📊 HASIL AKHIR: {volumeKeBeaker:F1} ml berhasil ditambah. Total isi Beaker: {totalDiBeaker:F1} ml | Terbuang: {volumeTumpahKeMeja:F1} ml");
     }
 }

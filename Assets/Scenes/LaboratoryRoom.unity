@@ -3117,7 +3117,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.03912982, y: 0.16982543, z: 0.042637803}
   m_Center: {x: 0.00090147974, y: 0.08491269, z: 0.10778907}
---- !u!114 &157915930
+--- !u!114 &157915933
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3132,6 +3132,12 @@ MonoBehaviour:
   aliranTuang: {fileID: 330562332}
   rendererH2SO4: {fileID: 495433225}
   rendererBeaker: {fileID: 83755396}
+  volumeAwalGelasUkur: 50
+  volumeAwalBeaker: 200
+  batasMaxBeaker: 250
+  fillBeaker200ml: 0.7
+  fillBeaker250ml: 1
+  fillGelasUkurPenuh: 1
   sudutTuang: 80
   kecepatanHabis: 0.5
 --- !u!1001 &160912446
@@ -6061,7 +6067,7 @@ PrefabInstance:
       addedObject: {fileID: 157915921}
     - targetCorrespondingSourceObject: {fileID: 6130358711442447608, guid: 43f1e6daae7b75644a23dda4150f5896, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 157915930}
+      addedObject: {fileID: 157915933}
   m_SourcePrefab: {fileID: 100100000, guid: 43f1e6daae7b75644a23dda4150f5896, type: 3}
 --- !u!1 &330562329
 GameObject:
@@ -10912,7 +10918,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f403ca7f0510c14b9cd7e6b2d78f785, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeteksiAir
-  scriptGelasUkur: {fileID: 0}
+  scriptGelasUkur: {fileID: 157915933}
 --- !u!1 &359247438
 GameObject:
   m_ObjectHideFlags: 0
@@ -32239,7 +32245,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1185317084
 Transform:
   m_ObjectHideFlags: 0
@@ -35963,7 +35969,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2581742485220959495, guid: f2629ace2826e974393b395f2af2bb50, type: 3}
       propertyPath: m_Name
-      value: Meja_Partikum1
+      value: Meja_Praktikum1
       objectReference: {fileID: 0}
     - target: {fileID: 2581742485220959495, guid: f2629ace2826e974393b395f2af2bb50, type: 3}
       propertyPath: m_StaticEditorFlags
