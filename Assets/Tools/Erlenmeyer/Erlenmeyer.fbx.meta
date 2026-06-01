@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: af4218ab582147f43aa41100b9a18b47
+guid: 978e95b0c85588843b7f3a2cb7f6b6dd
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -7,8 +7,13 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: burette
-    second: {fileID: 2100000, guid: 75f8493fcc081c64daeb0d03929f4f27, type: 2}
+      name: 25.001
+    second: {fileID: 2100000, guid: 4937277a82848844b83f0f6af0a9b833, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Gradation Glass
+    second: {fileID: 2100000, guid: 4df40cef078561644a118ac7dc45d01d, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

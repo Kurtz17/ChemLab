@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: af4218ab582147f43aa41100b9a18b47
+guid: f963e061102015a418f155b37b64e4f4
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
@@ -7,8 +7,13 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: burette
-    second: {fileID: 2100000, guid: 75f8493fcc081c64daeb0d03929f4f27, type: 2}
+      name: Glass
+    second: {fileID: 2100000, guid: a19ea98e2a35cca4ab91604475b1a35f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Karet
+    second: {fileID: 2100000, guid: 36cb96c674f50f94498bd295a70e980d, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
