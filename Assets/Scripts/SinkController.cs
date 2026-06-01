@@ -18,6 +18,14 @@ public class SinkController : MonoBehaviour
     [Header("Efek Air Keran")]
     public GameObject waterEffect;
 
+    // -------------------------------------------------------
+    // SAMBUNGAN KE EVALUASI (drag di Inspector)
+    // -------------------------------------------------------
+    [Header("Referensi Evaluasi")]
+    public UIManager uiManager;             // drag LabBoardCanvas ke sini
+    public CustomPouring scriptPenuangan;   // drag Gelas Ukur ke sini
+    public StirrerController scriptPengaduk; // drag alat pengaduk ke sini
+
     // Status sensor
     private bool beakerDiDalam = false;
     private bool gelasUkurDiDalam = false;
@@ -30,10 +38,6 @@ public class SinkController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Debug Log Detektif: Biar kita tahu wastafel nyentuh apa
-        // Debug.Log("Wastafel disentuh oleh: " + other.name);
-
-        // Gunakan IsChildOf: Mengecek apakah yang menyentuh ini adalah bagian dari Beaker/Gelas Ukur
         if (other.transform.IsChildOf(beaker.transform)) 
         {
             beakerDiDalam = true;
@@ -74,7 +78,6 @@ public class SinkController : MonoBehaviour
         }
         else
         {
-            // Debug tambahan biar kelihatan mana yang belum terbaca
             Debug.Log($"Gagal Cuci. Status saat ini -> Beaker: {beakerDiDalam} | Gelas Ukur: {gelasUkurDiDalam}");
         }
     }
@@ -100,6 +103,27 @@ public class SinkController : MonoBehaviour
 
         sedangDicuci = false;
         Debug.Log("Praktikum Selesai!");
+
+        // -------------------------------------------------------
+        // TAMPILKAN EVALUASI dengan volume asli dari penuangan
+        // -------------------------------------------------------
+        if (uiManager != null && scriptPenuangan != null)
+        {
+            float volumeAkhir = scriptPenuangan.GetVolumeAkhirBeaker();
+            float kapasitasMax = scriptPenuangan.GetKapasitasMaxBeaker();
+            float suhuMax = scriptPenuangan.GetSuhuMax();
+            float lajuMax = scriptPenuangan.GetLajuTuangMax();
+            bool menuangCepat = scriptPenuangan.MenuangTerlaluCepat();
+            float lamaAduk = (scriptPengaduk != null) ? scriptPengaduk.GetLamaPengadukan() : 0f;
+
+            // Kirim data tambahan dulu, baru tampilkan evaluasi
+            uiManager.SetDataEksperimen(lamaAduk, suhuMax, lajuMax, menuangCepat);
+            uiManager.TampilkanEvaluasi(volumeAkhir, kapasitasMax);
+        }
+        else
+        {
+            Debug.LogWarning("SinkController: uiManager atau scriptPenuangan belum di-assign di Inspector!");
+        }
     }
 
     private void ResetFisikaDanTeleport(GameObject obj, Transform targetTransform)
@@ -108,7 +132,7 @@ public class SinkController : MonoBehaviour
         if (rb != null)
         {
             rb.isKinematic = true; 
-            rb.linearVelocity = Vector3.zero; // Unity 6 update
+            rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
 
             obj.transform.position = targetTransform.position;
