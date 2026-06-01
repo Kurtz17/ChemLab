@@ -136,6 +136,7 @@ public class UIManager : MonoBehaviour
     // =========================================================
     public void UlangiSimulasi()
     {
+        PlayerSpawn.modeUlangi = true;   // ← baris ini harus ada
         Scene scene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(scene.name);
     }
