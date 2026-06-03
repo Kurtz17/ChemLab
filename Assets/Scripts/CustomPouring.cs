@@ -8,6 +8,10 @@ public class CustomPouring : MonoBehaviour
     public Renderer rendererH2SO4;   
     public Renderer rendererBeaker;   
 
+    [Header("Efek Suara")]
+    public AudioSource audioSourceTuang; // Komponen speaker di Gelas Ukur
+    public AudioClip suaraTuang;         // File audio suara air mengalir/dituang
+
     [Header("Kalibrasi Volume Asli (Mililiter)")]
     public float volumeAwalGelasUkur = 50f;
     public float volumeAwalBeaker = 200f;
@@ -85,6 +89,12 @@ public class CustomPouring : MonoBehaviour
             matBeaker = rendererBeaker.material;
             matBeaker.SetFloat("_FillAmount", fillBeaker);
         }
+
+        // PENGAMAN: Pastikan audio diset untuk looping secara otomatis lewat script
+        if (audioSourceTuang != null)
+        {
+            audioSourceTuang.loop = true;
+        }
     }
 
     void Update()
@@ -125,6 +135,13 @@ public class CustomPouring : MonoBehaviour
         {
             sedangMenuang = true;
             aliranTuang.Play();
+
+            // NYALAKAN SUARA TUANG
+            if (audioSourceTuang != null && suaraTuang != null)
+            {
+                audioSourceTuang.clip = suaraTuang;
+                audioSourceTuang.Play();
+            }
         }
     }
 
@@ -135,6 +152,13 @@ public class CustomPouring : MonoBehaviour
             sedangMenuang = false;
             aliranTuang.Stop();
             lajuTuangSaatIni = 0f;   // berhenti menuang -> laju 0
+
+            // MATIKAN SUARA TUANG
+            if (audioSourceTuang != null)
+            {
+                audioSourceTuang.Stop();
+            }
+
             TampilkanLogEvaluasi(); 
         }
     }
@@ -256,7 +280,7 @@ public class CustomPouring : MonoBehaviour
         float rasioMasuk = (float)partikelMasuk / totalPartikel;
         float rasioTumpah = (float)partikelTumpah / totalPartikel;
 
-        float volumeKeBeaker = volumeKeluar * rasioMasuk;
+        float volumeKeBeaker = volumeKeBeaker = volumeKeluar * rasioMasuk;
         float volumeTumpahKeMeja = volumeKeluar * rasioTumpah;
         float totalDiBeaker = volumeAwalBeaker + volumeKeBeaker;
 

@@ -3,7 +3,27 @@ guid: a0dae0dae4eb8e64c89d05ad51f648f3
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "Indikator\LPP"
+    second: {fileID: 2100000, guid: e40a935d6d15bad42bc96bc9d1485d7d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.001
+    second: {fileID: 2100000, guid: d066d6fb9c17a7d4cb8d284d231c25a5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Post_it_note
+    second: {fileID: 2100000, guid: ebebe0c23a3e11a418c666816820b48e, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: "Indikator\LPP"
+    second: {fileID: 2800000, guid: 43e274df92a7e8348b990127e3453114, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0

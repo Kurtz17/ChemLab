@@ -14,11 +14,18 @@ public class SinkControllerLevel2 : MonoBehaviour
     public Transform titikBersihPipet;
     public Transform titikBersihBotolPP;
 
-    [Header("Efek Air Keran")]
+    [Header("Referensi Cairan (Untuk dikosongkan)")]
+    public GameObject cairanErlenmeyer;
+
+    [Header("Efek Air Keran & Suara")]
     public GameObject waterEffect;
+    public AudioSource audioSourceKeran; // Speaker keran
+    public AudioClip suaraAirMengalir;   // File suara keran
+    [Tooltip("Mulai mainkan suara dari detik ke berapa?")]
+    public float mulaiAudioDariDetik = 0f; // Fitur CUT/TRIM awal suara
 
     [Header("Referensi Evaluasi")]
-    public UIManager2 uiManager2;  // drag LabBoardCanvas2 ke sini
+    public UIManager2 uiManager2; 
 
     // Status sensor
     private bool erlenmeyerDiDalam = false;
@@ -93,12 +100,26 @@ public class SinkControllerLevel2 : MonoBehaviour
     private IEnumerator ProsesCuciCoroutine()
     {
         sedangDicuci = true;
+        
+        // 1. NYALAKAN EFEK VISUAL AIR
         if (waterEffect != null) waterEffect.SetActive(true);
+        
+        // 2. NYALAKAN EFEK SUARA AIR
+        if (audioSourceKeran != null && suaraAirMengalir != null)
+        {
+            audioSourceKeran.clip = suaraAirMengalir;
+            audioSourceKeran.time = mulaiAudioDariDetik; // Audio di-cut / dimulai dari detik yang kamu mau
+            audioSourceKeran.Play();
+        }
+        
         Debug.Log("🚿 Proses cuci Titrasi dimulai...");
 
+        // 3. TUNGGU SELAMA 3 DETIK
         yield return new WaitForSeconds(3f);
 
+        // 4. MATIKAN EFEK VISUAL & SUARA AIR
         if (waterEffect != null) waterEffect.SetActive(false);
+        if (audioSourceKeran != null) audioSourceKeran.Stop();
 
         // Ambil data evaluasi SEBELUM di-reset
         int tetesPP = 0;
@@ -112,14 +133,19 @@ public class SinkControllerLevel2 : MonoBehaviour
             {
                 tetesPP = scriptE.jumlahTetesanPP;
                 volNaOH = scriptE.totalVolumeNaOH;
-                // Warna berubah jika sudah merah muda atau magenta
-                // (volume NaOH >= target pas DAN sudah pernah digoyangkan)
                 berubahWarna = scriptE.indikatorSiap &&
                                scriptE.totalVolumeNaOH >= scriptE.targetVolumePas;
             }
         }
 
-        // Reset semua alat
+        // Hilangkan cairan
+        if (cairanErlenmeyer != null) 
+        {
+            cairanErlenmeyer.SetActive(false);
+            Debug.Log("💧 Cairan Erlenmeyer dibuang!");
+        }
+
+        // Reset logika script
         if (erlenmeyer != null)
         {
             ErlenmeyerTitrasi scriptE = erlenmeyer.GetComponent<ErlenmeyerTitrasi>();
@@ -140,7 +166,6 @@ public class SinkControllerLevel2 : MonoBehaviour
         sedangDicuci = false;
         Debug.Log("✨ Praktikum Titrasi Selesai! Alat sudah di meja.");
 
-        // Tampilkan evaluasi dengan data yang sudah diambil
         if (uiManager2 != null)
         {
             uiManager2.TampilkanEvaluasi(tetesPP, volNaOH, berubahWarna);
@@ -161,10 +186,13 @@ public class SinkControllerLevel2 : MonoBehaviour
             rb.isKinematic = true; 
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
+        }
 
-            obj.transform.position = targetTransform.position;
-            obj.transform.rotation = targetTransform.rotation; 
+        obj.transform.position = targetTransform.position;
+        obj.transform.rotation = targetTransform.rotation; 
 
+        if (rb != null)
+        {
             StartCoroutine(ReenablePhysics(rb));
         }
     }

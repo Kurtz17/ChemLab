@@ -15,8 +15,12 @@ public class SinkController : MonoBehaviour
     public Transform titikBersihBeaker;
     public Transform titikBersihGelasUkur;
 
-    [Header("Efek Air Keran")]
+    [Header("Efek Air Keran & Suara")]
     public GameObject waterEffect;
+    public AudioSource audioSourceKeran; // Speaker keran
+    public AudioClip suaraAirMengalir;   // File suara air mengalir
+    [Tooltip("Mulai mainkan suara dari detik ke berapa?")]
+    public float mulaiAudioDariDetik = 0f; // Fitur CUT awal suara
 
     // -------------------------------------------------------
     // SAMBUNGAN KE EVALUASI (drag di Inspector)
@@ -86,12 +90,25 @@ public class SinkController : MonoBehaviour
     {
         sedangDicuci = true;
         
+        // 1. NYALAKAN EFEK VISUAL AIR
         if (waterEffect != null) waterEffect.SetActive(true);
+
+        // 2. NYALAKAN EFEK SUARA AIR
+        if (audioSourceKeran != null && suaraAirMengalir != null)
+        {
+            audioSourceKeran.clip = suaraAirMengalir;
+            audioSourceKeran.time = mulaiAudioDariDetik; // Memulai dari detik yang ditentukan
+            audioSourceKeran.Play();
+        }
+
         Debug.Log("Proses cuci dimulai...");
 
+        // 3. TUNGGU SELAMA 2 DETIK
         yield return new WaitForSeconds(2f);
 
+        // 4. MATIKAN EFEK VISUAL & SUARA AIR
         if (waterEffect != null) waterEffect.SetActive(false);
+        if (audioSourceKeran != null) audioSourceKeran.Stop();
 
         // KOSONGKAN GELAS
         if (cairanBeaker != null) cairanBeaker.SetActive(false);
@@ -128,16 +145,23 @@ public class SinkController : MonoBehaviour
 
     private void ResetFisikaDanTeleport(GameObject obj, Transform targetTransform)
     {
+        if (obj == null || targetTransform == null) return;
+
+        // Perbaikan Bug Teleportasi ala Level 2!
         Rigidbody rb = obj.GetComponent<Rigidbody>();
         if (rb != null)
         {
             rb.isKinematic = true; 
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
+        }
 
-            obj.transform.position = targetTransform.position;
-            obj.transform.rotation = targetTransform.rotation; 
+        // Paksa pindah posisi di luar pengecekan Rigidbody
+        obj.transform.position = targetTransform.position;
+        obj.transform.rotation = targetTransform.rotation; 
 
+        if (rb != null)
+        {
             StartCoroutine(ReenablePhysics(rb));
         }
     }

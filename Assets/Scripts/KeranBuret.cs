@@ -10,6 +10,10 @@ public class KeranBuret : MonoBehaviour
     public UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor socketBuret;
     public ParticleSystem efekTetesan; // Slot untuk Particle System air
 
+    [Header("Efek Suara")]
+    public AudioSource audioSource; // Komponen speaker di Unity
+    public AudioClip suaraTetesan; // File suara tetesan air (mp3/wav)
+
     private UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable simpleInteractable;
 
     void Start()
@@ -38,15 +42,18 @@ public class KeranBuret : MonoBehaviour
         ProsesTetesan();
     }
 
-    // Logika utama agar kodenya tidak berulang
     private void ProsesTetesan()
     {
         Debug.Log("🚰 Keran diputar! 1 Tetes keluar.");
 
-        // Mainkan efek partikel air
         if (efekTetesan != null)
         {
             efekTetesan.Play();
+        }
+
+        if (audioSource != null && suaraTetesan != null)
+        {
+            audioSource.PlayOneShot(suaraTetesan);
         }
 
         if (socketBuret != null && socketBuret.hasSelection)
