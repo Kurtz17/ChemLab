@@ -94,19 +94,19 @@ public class UIManager : MonoBehaviour
         float akurasi = Mathf.Clamp((volumePemain / kapasitasMaxBeaker) * 100f, 0f, 100f);
 
         if (teksVolumePemain != null)
-            teksVolumePemain.text = "Volume akhir beaker: " + volumePemain.ToString("0.00") + " ml";
+            teksVolumePemain.text = volumePemain.ToString("0.00");
 
         if (teksAkurasi != null)
-            teksAkurasi.text = "Akurasi: " + akurasi.ToString("0") + "%";
+            teksAkurasi.text = akurasi.ToString("0");
 
         if (teksLamaAduk != null)
-            teksLamaAduk.text = "Lama pengadukan: " + dataLamaAduk.ToString("0.0") + " detik";
+            teksLamaAduk.text = dataLamaAduk.ToString("0.0");
 
         if (teksSuhuMax != null)
-            teksSuhuMax.text = "Suhu tertinggi: " + dataSuhuMax.ToString("0.0") + " °C";
+            teksSuhuMax.text = dataSuhuMax.ToString("0.0");
 
         if (teksLajuTuang != null)
-            teksLajuTuang.text = "Laju tuang max: " + dataLajuMax.ToString("0.0") + " ml/s";
+            teksLajuTuang.text = dataLajuMax.ToString("0.0");
 
         if (teksFeedback != null)
             teksFeedback.text = AmbilFeedback(akurasi);
@@ -116,7 +116,7 @@ public class UIManager : MonoBehaviour
     {
         // Prioritaskan peringatan keselamatan dulu
         if (dataMenuangCepat || dataSuhuMax >= suhuBahaya)
-            return "PERINGATAN: suhu larutan terlalu tinggi karena asam dituang terlalu cepat. " +
+            return "suhu larutan terlalu tinggi karena asam dituang terlalu cepat. " +
                    "Tuangkan lebih perlahan dan aduk agar panas reaksi tersebar aman.";
 
         if (dataLamaAduk < minLamaAduk)

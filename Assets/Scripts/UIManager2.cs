@@ -72,13 +72,13 @@ public class UIManager2 : MonoBehaviour
     private void TampilkanHasil()
     {
         if (teksJumlahTetesPP != null)
-            teksJumlahTetesPP.text = "Tetes indikator PP: " + dataJumlahTetesPP + " / " + targetTetesPP;
+            teksJumlahTetesPP.text = dataJumlahTetesPP.ToString();
 
         if (teksVolumeNaOH != null)
-            teksVolumeNaOH.text = "Volume NaOH diteteskan: " + dataVolumeNaOH.ToString("0.00") + " ml";
+            teksVolumeNaOH.text = dataVolumeNaOH.ToString("0.00");
 
         if (teksHasilWarna != null)
-            teksHasilWarna.text = "Perubahan warna: " + (dataBerubahWarna ? "✓ Berhasil" : "✗ Belum terjadi");
+            teksHasilWarna.text = dataBerubahWarna ? "Berhasil" : "Belum terjadi";
 
         if (teksFeedback != null)
             teksFeedback.text = AmbilFeedback();
