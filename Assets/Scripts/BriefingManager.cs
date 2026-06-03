@@ -1,52 +1,47 @@
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
 
 public class BriefingManager : MonoBehaviour
 {
     [Header("UI Elements")]
-    public TextMeshProUGUI instructionText;
+    public Image slideImage;       // Image yang menampilkan gambar per halaman
     public Button nextButton;
     public Button backButton;
     public Button selesaiButton;
 
     [Header("Player Movement System")]
-    // Ini adalah objek Locomotion System yang mengatur bisa/tidaknya player bergerak
-    public GameObject locomotionSystem; 
+    public GameObject locomotionSystem;
 
-    [Header("Isi Modul Instruksi")]
-    [TextArea(3, 5)]
-    public string[] instructions;
+    [Header("Slide Gambar (isi sesuai urutan halaman)")]
+    public Sprite[] slides;        // drag brief-0, brief-1, brief-2, dst ke sini
 
     private int currentIndex = 0;
 
     void Start()
     {
-        // 1. Kunci pergerakan pemain saat game dimulai
-        if (locomotionSystem != null) 
-        {
+        // Kunci pergerakan pemain saat briefing
+        if (locomotionSystem != null)
             locomotionSystem.SetActive(false);
-        }
 
-        // 2. Hubungkan tombol dengan fungsinya
-        nextButton.onClick.AddListener(NextInstruction);
-        backButton.onClick.AddListener(BackInstruction);
+        // Hubungkan tombol
+        nextButton.onClick.AddListener(NextSlide);
+        backButton.onClick.AddListener(BackSlide);
         selesaiButton.onClick.AddListener(FinishBriefing);
 
-        // 3. Tampilkan halaman pertama
+        // Tampilkan halaman pertama
         UpdateUI();
     }
 
-    void NextInstruction()
+    void NextSlide()
     {
-        if (currentIndex < instructions.Length - 1)
+        if (currentIndex < slides.Length - 1)
         {
             currentIndex++;
             UpdateUI();
         }
     }
 
-    void BackInstruction()
+    void BackSlide()
     {
         if (currentIndex > 0)
         {
@@ -57,27 +52,23 @@ public class BriefingManager : MonoBehaviour
 
     void FinishBriefing()
     {
-        // Buka kembali kunci pergerakan pemain agar bisa jalan
-        if (locomotionSystem != null) 
-        {
+        // Buka kunci pergerakan pemain
+        if (locomotionSystem != null)
             locomotionSystem.SetActive(true);
-        }
 
-        // Hilangkan canvas briefing ini dari layar
-        transform.parent.gameObject.SetActive(false); 
+        // Hilangkan canvas briefing
+        transform.parent.gameObject.SetActive(false);
     }
 
     void UpdateUI()
     {
-        // Ganti teks sesuai halaman saat ini
-        if (instructions.Length > 0)
-        {
-            instructionText.text = instructions[currentIndex];
-        }
+        // Ganti gambar sesuai halaman
+        if (slides.Length > 0 && slideImage != null)
+            slideImage.sprite = slides[currentIndex];
 
-        // Sembunyikan/tampilkan tombol sesuai halaman
+        // Tampilkan/sembunyikan tombol sesuai posisi halaman
         backButton.gameObject.SetActive(currentIndex > 0);
-        nextButton.gameObject.SetActive(currentIndex < instructions.Length - 1);
-        selesaiButton.gameObject.SetActive(currentIndex == instructions.Length - 1);
+        nextButton.gameObject.SetActive(currentIndex < slides.Length - 1);
+        selesaiButton.gameObject.SetActive(currentIndex == slides.Length - 1);
     }
 }
