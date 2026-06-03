@@ -136,7 +136,8 @@ public class UIManager : MonoBehaviour
     // =========================================================
     public void UlangiSimulasi()
     {
-        PlayerSpawn.modeUlangi = true;   // ← baris ini harus ada
+        PlayerSpawn.modeUlangi = true;
+        PlayerSpawn.spawnStage = 1;   // spawn di depan meja stage 1
         Scene scene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(scene.name);
     }

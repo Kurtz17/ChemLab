@@ -7,7 +7,7 @@ public class SinkControllerLevel2 : MonoBehaviour
     [Header("Referensi Alat (Level 2)")]
     public GameObject erlenmeyer;
     public GameObject pipet;
-    public GameObject botolReagenPP; // Opsional ikut dicuci/direset posisinya
+    public GameObject botolReagenPP;
 
     [Header("Titik Selesai Cuci (Teleport)")]
     public Transform titikBersihErlenmeyer;
@@ -15,7 +15,10 @@ public class SinkControllerLevel2 : MonoBehaviour
     public Transform titikBersihBotolPP;
 
     [Header("Efek Air Keran")]
-    public GameObject waterEffect; // Masukkan efek partikel/objek air ke sini
+    public GameObject waterEffect;
+
+    [Header("Referensi Evaluasi")]
+    public UIManager2 uiManager2;  // drag LabBoardCanvas2 ke sini
 
     // Status sensor
     private bool erlenmeyerDiDalam = false;
@@ -28,7 +31,6 @@ public class SinkControllerLevel2 : MonoBehaviour
     {
         if (waterEffect != null) waterEffect.SetActive(false);
 
-        // Mengambil komponen pencet dari tuas keran
         simpleInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable>();
         if (simpleInteractable != null)
         {
@@ -37,7 +39,6 @@ public class SinkControllerLevel2 : MonoBehaviour
         }
     }
 
-    // Menggunakan IsChildOf seperti Level 1 agar sensor lebih akurat
     private void OnTriggerEnter(Collider other)
     {
         if (erlenmeyer != null && other.transform.IsChildOf(erlenmeyer.transform)) 
@@ -68,7 +69,6 @@ public class SinkControllerLevel2 : MonoBehaviour
         }
     }
 
-    // Fungsi perantara untuk tombol VR
     private void TriggerCuci(BaseInteractionEventArgs arg)
     {
         MulaiCuciAlat();
@@ -86,22 +86,40 @@ public class SinkControllerLevel2 : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Gagal Cuci. Status saat ini -> Erlenmeyer: {erlenmeyerDiDalam} | Pipet: {pipetDiDalam}");
+            Debug.Log($"Gagal Cuci. Status -> Erlenmeyer: {erlenmeyerDiDalam} | Pipet: {pipetDiDalam}");
         }
     }
 
     private IEnumerator ProsesCuciCoroutine()
     {
         sedangDicuci = true;
-        
         if (waterEffect != null) waterEffect.SetActive(true);
         Debug.Log("🚿 Proses cuci Titrasi dimulai...");
 
-        yield return new WaitForSeconds(3f); // Cuci selama 3 detik
+        yield return new WaitForSeconds(3f);
 
         if (waterEffect != null) waterEffect.SetActive(false);
 
-        // RESET LOGIKA CAIRAN & WARNA (Memanggil script masing-masing)
+        // Ambil data evaluasi SEBELUM di-reset
+        int tetesPP = 0;
+        float volNaOH = 0f;
+        bool berubahWarna = false;
+
+        if (erlenmeyer != null)
+        {
+            ErlenmeyerTitrasi scriptE = erlenmeyer.GetComponent<ErlenmeyerTitrasi>();
+            if (scriptE != null)
+            {
+                tetesPP = scriptE.jumlahTetesanPP;
+                volNaOH = scriptE.totalVolumeNaOH;
+                // Warna berubah jika sudah merah muda atau magenta
+                // (volume NaOH >= target pas DAN sudah pernah digoyangkan)
+                berubahWarna = scriptE.indikatorSiap &&
+                               scriptE.totalVolumeNaOH >= scriptE.targetVolumePas;
+            }
+        }
+
+        // Reset semua alat
         if (erlenmeyer != null)
         {
             ErlenmeyerTitrasi scriptE = erlenmeyer.GetComponent<ErlenmeyerTitrasi>();
@@ -114,7 +132,7 @@ public class SinkControllerLevel2 : MonoBehaviour
             if (scriptP != null) scriptP.ResetPipet();
         }
 
-        // TELEPORTASI KE MEJA AWAL (Menggunakan logika mantap dari Level 1)
+        // Teleportasi alat ke meja
         ResetFisikaDanTeleport(erlenmeyer, titikBersihErlenmeyer);
         ResetFisikaDanTeleport(pipet, titikBersihPipet);
         ResetFisikaDanTeleport(botolReagenPP, titikBersihBotolPP);
@@ -122,7 +140,15 @@ public class SinkControllerLevel2 : MonoBehaviour
         sedangDicuci = false;
         Debug.Log("✨ Praktikum Titrasi Selesai! Alat sudah di meja.");
 
-        // NANTI: Panggil UI Manager untuk Evaluasi Titrasi di sini
+        // Tampilkan evaluasi dengan data yang sudah diambil
+        if (uiManager2 != null)
+        {
+            uiManager2.TampilkanEvaluasi(tetesPP, volNaOH, berubahWarna);
+        }
+        else
+        {
+            Debug.LogWarning("SinkControllerLevel2: uiManager2 belum di-assign di Inspector!");
+        }
     }
 
     private void ResetFisikaDanTeleport(GameObject obj, Transform targetTransform)

@@ -1,51 +1,64 @@
 using System.Collections;
 using UnityEngine;
 
-// Hanya menangani kasus "Ulangi":
-// - Spawn awal dari Briefing Room  -> DIBIARKAN apa adanya (sudah benar)
-// - Tekan tombol "Ulangi"          -> pindahkan pemain ke DEPAN MEJA
+// Menangani spawn pemain saat Ulangi ditekan.
+// Mendukung dua titik spawn berbeda: stage 1 (depan meja 1) dan stage 2 (depan meja 2).
+// Spawn awal dari Briefing Room dibiarkan apa adanya.
 public class PlayerSpawn : MonoBehaviour
 {
+    // static -> bertahan saat reload scene
     public static bool modeUlangi = false;
+    public static int spawnStage = 1;   // 1 = depan meja stage 1, 2 = depan meja stage 2
 
     [Header("Referensi")]
-    [Tooltip("Drag GameObject 'XR Origin (XR Rig)' ke sini")]
+    [Tooltip("Drag XR Origin (XR Rig) ke sini")]
     public Transform xrOrigin;
 
-    [Tooltip("Titik spawn saat menekan Ulangi (depan meja)")]
-    public Transform spawnDepanMeja;
+    [Tooltip("Titik spawn Ulangi stage 1 (depan meja praktikum 1)")]
+    public Transform spawnDepanMeja1;
+
+    [Tooltip("Titik spawn Ulangi stage 2 (depan meja titrasi)")]
+    public Transform spawnDepanMeja2;
 
     void Start()
     {
-        if (!modeUlangi) return;          // bukan mode ulangi -> biarkan normal
+        if (!modeUlangi) return;  // bukan mode ulangi -> biarkan spawn normal
         StartCoroutine(PindahkanPemain());
     }
 
     private IEnumerator PindahkanPemain()
     {
-        // Tunggu beberapa frame supaya sistem tracking XR selesai inisialisasi
-        // (kalau langsung di Start, posisi sering ditimpa balik oleh XR)
         yield return null;
         yield return null;
         yield return new WaitForEndOfFrame();
 
-        if (xrOrigin != null && spawnDepanMeja != null)
+        // Pilih titik spawn sesuai stage
+        Transform target = (spawnStage == 2) ? spawnDepanMeja2 : spawnDepanMeja1;
+
+        if (xrOrigin == null || target == null)
         {
-            // Matikan dulu CharacterController kalau ada, biar tidak menahan teleport
-            CharacterController cc = xrOrigin.GetComponent<CharacterController>();
-            if (cc != null) cc.enabled = false;
+            Debug.LogWarning("PlayerSpawn: xrOrigin atau titik spawn stage " + spawnStage + " belum di-assign!");
+            modeUlangi = false;
+            yield break;
+        }
 
-            xrOrigin.SetPositionAndRotation(spawnDepanMeja.position, spawnDepanMeja.rotation);
-
-            if (cc != null) cc.enabled = true;
-
-            Debug.Log("PlayerSpawn: pemain dipindah ke depan meja.");
+        // Kompensasi offset kamera headset VR
+        Camera xrCamera = xrOrigin.GetComponentInChildren<Camera>();
+        if (xrCamera != null)
+        {
+            Vector3 cameraOffset = xrCamera.transform.position - xrOrigin.position;
+            cameraOffset.y = 0f;
+            Vector3 targetOriginPos = target.position - cameraOffset;
+            targetOriginPos.y = target.position.y;
+            xrOrigin.position = targetOriginPos;
+            xrOrigin.rotation = target.rotation;
         }
         else
         {
-            Debug.LogWarning("PlayerSpawn: xrOrigin atau spawnDepanMeja belum di-assign!");
+            xrOrigin.SetPositionAndRotation(target.position, target.rotation);
         }
 
-        modeUlangi = false; // reset agar reload berikutnya normal
+        Debug.Log("PlayerSpawn: pemain di-spawn di depan meja stage " + spawnStage);
+        modeUlangi = false;
     }
 }
